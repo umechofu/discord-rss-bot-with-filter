@@ -7,6 +7,18 @@ import os
 from datetime import datetime
 from typing import List, Dict, Set
 
+# Python 3.13 compatibility fix for feedparser
+try:
+    import cgi
+except ImportError:
+    # For Python 3.13+, create a minimal cgi module replacement
+    import sys
+    from types import ModuleType
+    
+    cgi = ModuleType('cgi')
+    cgi.parse_header = lambda value: (value.split(';')[0].strip(), {})
+    sys.modules['cgi'] = cgi
+
 import feedparser
 import requests
 
