@@ -1,0 +1,16 @@
+{
+    "discord_webhook_url": "YOUR_DISCORD_WEBHOOK_URL_HERE",
+    "rss_feeds": [
+        {
+            "name": "Example Tech News",
+            "url": "https://example.com/rss"
+        },
+        {
+            "name": "Example English News",
+            "url": "https://example.com/en/rss",
+            "translate": true
+        }
+    ],
+    "check_interval_minutes": 15,
+    "max_articles_per_feed": 5
+}
