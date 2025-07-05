@@ -145,7 +145,7 @@ class RSSDiscordBot:
             tweet_title = title
         
         # X(Twitter)への投稿リンクを作成（元のタイトルを使用）
-        tweet_text = f"{tweet_title} {link}"
+        tweet_text = f"\n\n{tweet_title} {link}"
         x_intent_url = f"https://x.com/intent/post?text={requests.utils.quote(tweet_text)}"
         
         message = f"**{feed_name}**\n"

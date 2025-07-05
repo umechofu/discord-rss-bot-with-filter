@@ -15,10 +15,11 @@ RSSフィードを定期的に取得し、新着記事をDiscordチャンネル�
 
 ## セットアップ
 
-### 1. 依存関係のインストール
+### 1. リポジトリのクローン
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/tejastice/discord-rss-bot.git
+cd discord-rss-bot
 ```
 
 ### 2. 設定ファイルの作成
@@ -58,15 +59,49 @@ cp config.json.example config.json
 
 ## 使用方法
 
-### 継続実行（推奨）
+### 自動セットアップ付き実行（推奨）
 
+仮想環境を自動的に作成・管理する実行スクリプトを使用できます：
+
+**Mac/Linux:**
 ```bash
-python rss_discord_bot.py
+# 継続実行
+./run_mac.sh
+
+# テスト実行（一度だけ）
+./test_mac.sh
 ```
 
-### 一度だけ実行（テスト用）
+**Windows:**
+```cmd
+# 継続実行
+run_windows.bat
+
+# テスト実行（一度だけ）
+test_windows.bat
+```
+
+### 手動実行
+
+仮想環境を手動で管理する場合：
 
 ```bash
+# 仮想環境を作成
+python -m venv venv
+
+# 仮想環境をアクティベート
+# Mac/Linux:
+source venv/bin/activate
+# Windows:
+venv\Scripts\activate
+
+# 依存関係をインストール
+pip install -r requirements.txt
+
+# 継続実行
+python rss_discord_bot.py
+
+# テスト実行（一度だけ）
 python rss_discord_bot.py --once
 ```
 
@@ -135,7 +170,13 @@ python rss_discord_bot.py --once
 ├── config.json.example  # 設定ファイルのサンプル
 ├── config.json          # 設定ファイル（ユーザーが作成）
 ├── requirements.txt     # 依存関係
+├── requirements.md      # 要件定義書
+├── run_mac.sh          # Mac/Linux実行スクリプト
+├── run_windows.bat     # Windows実行スクリプト
+├── test_mac.sh         # Mac/Linuxテストスクリプト
+├── test_windows.bat    # Windowsテストスクリプト
 ├── .gitignore          # Git除外設定
+├── venv/               # 仮想環境（自動生成、Git除外）
 ├── seen_articles.json   # 投稿済み記事管理（自動生成）
 ├── rss_bot.log         # 実行ログ（自動生成）
 └── README.md           # このファイル
