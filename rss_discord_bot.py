@@ -73,7 +73,53 @@ class RSSDiscordBot:
         content = f"{article.get('title', '')}{article.get('link', '')}"
         return hashlib.md5(content.encode('utf-8')).hexdigest()
     
-    def parse_rss_feed(self, feed_url: str) -> List[Dict]:
+    def matches_keywords(self, text: str, keywords: List[str], mode: str, case_sensitive: bool = False) -> bool:
+        """Check if text matches the keyword filter criteria"""
+        if not keywords:
+            return True  # No keywords means no filtering
+        
+        if not case_sensitive:
+            text = text.lower()
+            keywords = [k.lower() for k in keywords]
+        
+        # Check if any keyword is found in the text
+        matches = any(keyword in text for keyword in keywords)
+        
+        # Return based on mode
+        if mode == 'include':
+            return matches  # True if any keyword is found
+        else:  # exclude mode
+            return not matches  # True if no keywords are found
+    
+    def apply_keyword_filters(self, article: Dict, feed_config: Dict) -> bool:
+        """Apply both global and feed-specific keyword filters"""
+        # Combine title and summary for searching
+        search_text = f"{article['title']} {article['summary']}"
+        
+        # Apply global keywords filter first (if exists)
+        global_keywords_config = self.config.get('global_keywords', {})
+        if global_keywords_config:
+            keywords = global_keywords_config.get('keywords', [])
+            mode = global_keywords_config.get('mode', 'exclude')
+            case_sensitive = global_keywords_config.get('case_sensitive', False)
+            
+            if not self.matches_keywords(search_text, keywords, mode, case_sensitive):
+                logging.debug(f"Article filtered by global keywords: {article['title']}")
+                return False
+        
+        # Apply feed-specific keywords filter
+        if 'keywords' in feed_config:
+            keywords = feed_config['keywords']
+            mode = feed_config.get('keyword_mode', 'include')
+            case_sensitive = feed_config.get('case_sensitive', False)
+            
+            if not self.matches_keywords(search_text, keywords, mode, case_sensitive):
+                logging.debug(f"Article filtered by feed keywords: {article['title']}")
+                return False
+        
+        return True
+    
+    def parse_rss_feed(self, feed_url: str, feed_config: Dict) -> List[Dict]:
         try:
             feed = feedparser.parse(feed_url)
             if feed.bozo:
@@ -86,13 +132,17 @@ class RSSDiscordBot:
                 article_id = self.get_article_id(entry)
                 
                 if article_id not in self.seen_articles:
-                    articles.append({
+                    article = {
                         'id': article_id,
                         'title': entry.get('title', 'No title'),
                         'link': entry.get('link', ''),
                         'published': entry.get('published', ''),
                         'summary': entry.get('summary', '')
-                    })
+                    }
+                    
+                    # Apply keyword filters
+                    if self.apply_keyword_filters(article, feed_config):
+                        articles.append(article)
             
             return articles
         
@@ -176,7 +226,12 @@ class RSSDiscordBot:
             
             logging.info(f"Processing feed: {feed_name}")
             
-            articles = self.parse_rss_feed(feed_url)
+            articles = self.parse_rss_feed(feed_url, feed_config)
+            
+            if articles:
+                logging.info(f"Found {len(articles)} new articles matching filters for {feed_name}")
+            else:
+                logging.info(f"No new articles matching filters for {feed_name}")
             
             for article in articles:
                 message = self.format_article_message(article, feed_name, feed_config)

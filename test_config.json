@@ -1,0 +1,33 @@
+{
+    "discord_webhook_url": "https://discord.com/api/webhooks/YOUR_TEST_WEBHOOK_HERE",
+    "global_keywords": {
+        "keywords": ["広告", "PR記事", "sponsored"],
+        "mode": "exclude",
+        "case_sensitive": false
+    },
+    "rss_feeds": [
+        {
+            "name": "Hacker News",
+            "url": "https://hnrss.org/frontpage",
+            "keywords": ["AI", "GPT", "LLM", "machine learning"],
+            "keyword_mode": "include",
+            "case_sensitive": false
+        },
+        {
+            "name": "TechCrunch",
+            "url": "https://techcrunch.com/feed/",
+            "keywords": ["startup", "funding", "AI", "developer"],
+            "keyword_mode": "include",
+            "case_sensitive": false
+        },
+        {
+            "name": "Dev.to",
+            "url": "https://dev.to/feed",
+            "keywords": ["Python", "JavaScript", "React", "Vue", "tutorial"],
+            "keyword_mode": "include",
+            "case_sensitive": false
+        }
+    ],
+    "check_interval_minutes": 30,
+    "max_articles_per_feed": 3
+}

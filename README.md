@@ -11,6 +11,11 @@ RSSフィードを定期的に取得し、新着記事をDiscordチャンネル�
 - 記事タイトルとリンクを送信
 - X(Twitter)への投稿リンク（Intent Post）
 - 英語記事の日本語翻訳機能
+- **キーワードフィルタリング機能（新機能）**
+  - 特定のキーワードを含む記事のみを取得（includeモード）
+  - 特定のキーワードを含む記事を除外（excludeモード）
+  - グローバルキーワードと個別フィード設定の両方に対応
+  - 大文字小文字の区別を選択可能
 - エラーハンドリングとログ機能
 
 ## セットアップ
@@ -35,10 +40,18 @@ cp config.json.example config.json
 ```json
 {
     "discord_webhook_url": "YOUR_DISCORD_WEBHOOK_URL_HERE",
+    "global_keywords": {
+        "keywords": ["広告", "PR", "sponsored"],
+        "mode": "exclude",
+        "case_sensitive": false
+    },
     "rss_feeds": [
         {
             "name": "Tech News",
-            "url": "https://example.com/rss"
+            "url": "https://example.com/rss",
+            "keywords": ["AI", "Python", "JavaScript"],
+            "keyword_mode": "include",
+            "case_sensitive": false
         },
         {
             "name": "English Tech News",
@@ -50,6 +63,20 @@ cp config.json.example config.json
     "max_articles_per_feed": 5
 }
 ```
+
+#### キーワードフィルタリング設定
+
+- **global_keywords**: 全フィードに適用されるグローバルフィルター
+  - `keywords`: フィルタリング対象のキーワード配列
+  - `mode`: "include"（含む記事のみ）または "exclude"（含む記事を除外）
+  - `case_sensitive`: 大文字小文字を区別するか（true/false）
+
+- **フィード別設定**: 各RSSフィードに個別のキーワードフィルターを設定可能
+  - `keywords`: そのフィード専用のキーワード配列
+  - `keyword_mode`: "include" または "exclude"
+  - `case_sensitive`: 大文字小文字の区別
+
+フィルタリングは記事のタイトルとサマリー（説明文）の両方を対象に行われます。
 
 ### 3. Discord Webhook URLの取得
 

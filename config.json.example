@@ -1,14 +1,25 @@
 {
     "discord_webhook_url": "YOUR_DISCORD_WEBHOOK_URL_HERE",
+    "global_keywords": {
+        "keywords": ["広告", "PR", "sponsored", "プロモーション"],
+        "mode": "exclude",
+        "case_sensitive": false
+    },
     "rss_feeds": [
         {
             "name": "Example Tech News",
-            "url": "https://example.com/rss"
+            "url": "https://example.com/rss",
+            "keywords": ["AI", "ChatGPT", "機械学習", "Python", "JavaScript"],
+            "keyword_mode": "include",
+            "case_sensitive": false
         },
         {
             "name": "Example English News",
             "url": "https://example.com/en/rss",
-            "translate": true
+            "translate": true,
+            "keywords": ["technology", "innovation", "startup"],
+            "keyword_mode": "include",
+            "case_sensitive": false
         }
     ],
     "check_interval_minutes": 15,
