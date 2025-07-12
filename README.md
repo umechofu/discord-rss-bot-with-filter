@@ -1,6 +1,22 @@
-# Discord RSS Bot
+# Discord RSS Bot with Keyword Filtering
 
 RSSフィードを定期的に取得し、新着記事をDiscordチャンネルに自動投稿するPythonボットです。
+
+## 🙏 謝辞・クレジット
+
+このプロジェクトは [tejastice/discord-rss-bot](https://github.com/tejastice/discord-rss-bot) をベースに、キーワードフィルタリング機能を追加したフォーク版です。
+
+**オリジナル作者**: [tejastice](https://github.com/tejastice)  
+**オリジナルリポジトリ**: https://github.com/tejastice/discord-rss-bot
+
+素晴らしいベースコードを提供していただき、ありがとうございます。オリジナルの設計とコード品質のおかげで、新機能の追加がスムーズに行えました。
+
+### このフォーク版での追加機能
+
+- **キーワードフィルタリング**: 特定のキーワードを含む記事のみ取得、または除外
+- **グローバル・個別設定**: 全フィード共通とフィード別の両方でキーワード設定可能
+- **大文字小文字オプション**: 検索時の大文字小文字区別を選択可能
+- **テストスイート**: フィルタリング機能の動作確認用テストファイル
 
 ## 機能
 
