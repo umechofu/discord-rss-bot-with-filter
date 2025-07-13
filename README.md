@@ -1,6 +1,7 @@
 # Discord RSS Bot with Keyword Filtering
 
 RSSフィードを定期的に取得し、新着記事をDiscordチャンネルに自動投稿するPythonボットです。
+**日本語のAI・デザイン関連記事**に特化したキーワードフィルタリング機能を搭載し、**1日3回（8時・12時・17時）**の定時配信を行います。
 
 ## 🙏 謝辞・クレジット
 
@@ -57,26 +58,49 @@ cp config.json.example config.json
 {
     "discord_webhook_url": "YOUR_DISCORD_WEBHOOK_URL_HERE",
     "global_keywords": {
-        "keywords": ["広告", "PR", "sponsored"],
+        "keywords": ["広告", "PR記事", "sponsored", "プロモーション", "アフィリエイト"],
         "mode": "exclude",
         "case_sensitive": false
     },
     "rss_feeds": [
         {
-            "name": "Tech News",
-            "url": "https://example.com/rss",
-            "keywords": ["AI", "Python", "JavaScript"],
+            "name": "はてブ IT人気（AI・デザイン）",
+            "url": "http://b.hatena.ne.jp/hotentry/it.rss",
+            "keywords": ["AI", "人工知能", "機械学習", "深層学習", "ChatGPT", "GPT", "LLM", "生成AI", "デザイン", "UI", "UX", "ユーザビリティ", "インターフェース", "デザインシステム", "フィグマ", "Figma", "Adobe", "デザイナー", "プロダクト", "アプリ", "サービス", "開発", "エンジニア"],
             "keyword_mode": "include",
             "case_sensitive": false
         },
         {
-            "name": "English Tech News",
-            "url": "https://example.com/en/rss",
-            "translate": true
+            "name": "深津貴之（fladdict）",
+            "url": "https://note.com/fladdict/rss",
+            "keywords": ["AI", "人工知能", "機械学習", "ChatGPT", "GPT", "LLM", "デザイン", "UI", "UX", "プロダクト", "サービス"],
+            "keyword_mode": "include",
+            "case_sensitive": false
+        },
+        {
+            "name": "Zenn デザイン",
+            "url": "https://zenn.dev/topics/design/feed",
+            "keywords": ["AI", "人工知能", "機械学習", "ChatGPT", "GPT", "LLM", "デザイン", "UI", "UX", "フロントエンド", "React", "Vue", "Next.js"],
+            "keyword_mode": "include",
+            "case_sensitive": false
+        },
+        {
+            "name": "Qiita AI",
+            "url": "https://qiita.com/tags/ai/feed",
+            "keywords": ["AI", "人工知能", "機械学習", "深層学習", "ChatGPT", "GPT", "LLM", "自然言語処理", "画像認識", "デザイン", "UI", "UX"],
+            "keyword_mode": "include",
+            "case_sensitive": false
+        },
+        {
+            "name": "note クリエイティブ",
+            "url": "https://note.com/hashtag/デザイン/rss",
+            "keywords": ["AI", "人工知能", "デザイン", "UI", "UX", "クリエイティブ", "アート", "グラフィック", "ブランディング"],
+            "keyword_mode": "include",
+            "case_sensitive": false
         }
     ],
-    "check_interval_minutes": 15,
-    "max_articles_per_feed": 5
+    "check_interval_minutes": 480,
+    "max_articles_per_feed": 1
 }
 ```
 
@@ -155,13 +179,61 @@ python rss_discord_bot.py --once
   - `name`: フィード名（Discord投稿時に表示）
   - `url`: RSSフィードのURL
   - `translate`: 翻訳機能の有効/無効（オプション、英語記事の場合にtrue）
-- `check_interval_minutes`: チェック間隔（分、デフォルト15分）
-- `max_articles_per_feed`: フィードあたりの最大記事数（デフォルト5件）
+- `check_interval_minutes`: チェック間隔（分、推奨480分=8時間）
+- `max_articles_per_feed`: フィードあたりの最大記事数（推奨1件）
+
+## 定時実行設定（cron）
+
+このボットは手動実行の他、cron jobを使用した定時実行が可能です。1日3回（8時・12時・17時）の配信スケジュールを推奨しています。
+
+### cronジョブの設定方法
+
+1. **実行スクリプトに実行権限を付与**
+```bash
+chmod +x scheduled_rss.sh
+```
+
+2. **cronタブを編集**
+```bash
+crontab -e
+```
+
+3. **以下の設定を追加**
+```bash
+# RSS Bot 定時配信 - 毎日8時・12時・17時に実行
+0 8 * * * /Users/shusakuumemoto/docsLocal/management/discord-rss-bot/scheduled_rss.sh
+0 12 * * * /Users/shusakuumemoto/docsLocal/management/discord-rss-bot/scheduled_rss.sh
+0 17 * * * /Users/shusakuumemoto/docsLocal/management/discord-rss-bot/scheduled_rss.sh
+```
+
+### 定時実行ログの確認
+
+定時実行の結果は専用ログファイルで確認できます：
+
+```bash
+# リアルタイムでログを監視
+tail -f scheduled_rss.log
+
+# 最新のログを表示
+cat scheduled_rss.log
+```
+
+### cronジョブの動作確認
+
+```bash
+# 現在のcronジョブを確認
+crontab -l
+
+# 手動でスクリプトをテスト実行
+./scheduled_rss.sh
+```
 
 ## ログ
 
-- `rss_bot.log`: 実行ログファイル
+- `rss_bot.log`: 手動実行時のログファイル
+- `scheduled_rss.log`: 定時実行（cron）専用のログファイル
 - `seen_articles.json`: 投稿済み記事のID管理
+- `seen_articles_backup.json`: seen_articles.jsonのバックアップ
 
 ## 投稿メッセージ形式
 
@@ -190,6 +262,18 @@ python rss_discord_bot.py --once
 
 ## トラブルシューティング
 
+### cronジョブが実行されない
+- cronジョブが設定されているか確認: `crontab -l`
+- スクリプトの実行権限を確認: `chmod +x scheduled_rss.sh`
+- 絶対パスが正しいか確認
+- ログファイルでエラーを確認: `cat scheduled_rss.log`
+
+### 記事が配信されない
+- `scheduled_rss.log`で実行状況を確認
+- 新しい記事がフィルター条件に合致しているか確認
+- `seen_articles.json`の記録状況を確認
+- 手動実行でテスト: `./scheduled_rss.sh`
+
 ### Discord Webhookエラー
 - WebhookURLが正しく設定されているか確認
 - Discordサーバーの権限を確認
@@ -209,21 +293,46 @@ python rss_discord_bot.py --once
 ## ファイル構成
 
 ```
-├── rss_discord_bot.py    # メインプログラム
-├── config.json.example  # 設定ファイルのサンプル
-├── config.json          # 設定ファイル（ユーザーが作成）
-├── requirements.txt     # 依存関係
-├── requirements.md      # 要件定義書
-├── run_mac.sh          # Mac/Linux実行スクリプト
-├── run_windows.bat     # Windows実行スクリプト
-├── test_mac.sh         # Mac/Linuxテストスクリプト
-├── test_windows.bat    # Windowsテストスクリプト
-├── .gitignore          # Git除外設定
-├── venv/               # 仮想環境（自動生成、Git除外）
-├── seen_articles.json   # 投稿済み記事管理（自動生成）
-├── rss_bot.log         # 実行ログ（自動生成）
-└── README.md           # このファイル
+├── rss_discord_bot.py         # メインプログラム
+├── config.json.example       # 設定ファイルのサンプル
+├── config.json               # 設定ファイル（ユーザーが作成）
+├── scheduled_rss.sh          # 定時実行スクリプト（cron用）
+├── cron_setup.md             # cron設定ガイド
+├── requirements.txt          # 依存関係
+├── requirements.md           # 要件定義書
+├── run_mac.sh               # Mac/Linux実行スクリプト
+├── run_windows.bat          # Windows実行スクリプト
+├── test_mac.sh              # Mac/Linuxテストスクリプト
+├── test_windows.bat         # Windowsテストスクリプト
+├── .gitignore               # Git除外設定
+├── venv/                    # 仮想環境（自動生成、Git除外）
+├── seen_articles.json        # 投稿済み記事管理（自動生成）
+├── seen_articles_backup.json # seen_articlesのバックアップ
+├── rss_bot.log              # 手動実行ログ（自動生成）
+├── scheduled_rss.log        # 定時実行ログ（自動生成）
+└── README.md                # このファイル
 ```
+
+## 運用における推奨設定
+
+### 記事配信の最適化
+
+現在の設定では以下のような運用を想定しています：
+
+- **配信頻度**: 1日3回（朝8時・昼12時・夕方17時）
+- **記事数**: 1日あたり3記事を目標（1回につき1記事）
+- **対象分野**: AI・機械学習・デザイン・UI/UX関連の日本語記事
+- **フィード数**: 5つの高品質なRSSフィードを監視
+
+### フィードの特徴
+
+1. **はてブ IT人気**: トレンドのAI・デザイン記事
+2. **深津貴之**: AI・プロダクト開発の専門的な知見
+3. **Zenn デザイン**: 技術者向けのデザイン記事
+4. **Qiita AI**: AIの実装・技術記事
+5. **note クリエイティブ**: クリエイティブ分野のデザイン記事
+
+この構成により、幅広い観点からAI・デザイン領域の質の高い情報を継続的に配信できます。
 
 ## セキュリティ注意事項
 
